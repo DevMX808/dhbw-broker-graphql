@@ -1,0 +1,9 @@
+type Query {
+    ping: String!
+    me: Me!
+}
+
+type Me {
+    id: ID!
+    email: String!
+}
