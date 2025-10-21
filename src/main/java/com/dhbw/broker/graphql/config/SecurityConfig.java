@@ -14,6 +14,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.List;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 public class SecurityConfig {
 
@@ -28,13 +30,15 @@ public class SecurityConfig {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/health", "/actuator/health", "/graphiql/**").permitAll()
-                        .requestMatchers("/graphql").hasAuthority("SCOPE_graphql:proxy")
+                        .requestMatchers(HttpMethod.POST, "/graphql", "/graphql/**").hasAuthority("SCOPE_graphql:proxy")
                         .anyRequest().denyAll()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(dec).jwtAuthenticationConverter(jwtAuth)));
-
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.decoder(dec).jwtAuthenticationConverter(jwtAuth))
+                );
         return http.build();
     }
 
