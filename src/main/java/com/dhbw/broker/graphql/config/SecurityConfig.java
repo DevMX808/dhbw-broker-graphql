@@ -18,7 +18,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain security(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
+    SecurityFilterChain security(HttpSecurity http, JwtDecoder dec) throws Exception {
         var scopes = new JwtGrantedAuthoritiesConverter();
         scopes.setAuthoritiesClaimName("scope");
         scopes.setAuthorityPrefix("SCOPE_");
@@ -33,9 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/graphql").hasAuthority("SCOPE_graphql:proxy")
                         .anyRequest().denyAll()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(jwtAuth))
-                );
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(dec).jwtAuthenticationConverter(jwtAuth)));
 
         return http.build();
     }
