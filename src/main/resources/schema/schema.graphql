@@ -1,9 +1,20 @@
 type Query {
     ping: String!
     me: Me!
+    latestPrice(assetSymbol: String!): PriceTick
+    priceHistory24h(assetSymbol: String!): [PriceTick!]!
 }
 
 type Me {
     id: ID!
     email: String!
+}
+
+type PriceTick {
+    assetSymbol: String!
+    slot: Int!
+    priceUsd: Float!
+    sourceTsUtc: String!
+    ingestedTsUtc: String!
+    isCarry: Boolean!
 }
