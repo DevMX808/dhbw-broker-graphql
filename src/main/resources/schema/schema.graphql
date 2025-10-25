@@ -3,6 +3,13 @@ type Query {
     me: Me!
     latestPrice(assetSymbol: String!): PriceTick
     priceHistory24h(assetSymbol: String!): [PriceTick!]!
+    currentPrice(assetSymbol: String!): PriceTick
+    userTrades: [Trade!]!
+    userTradesByAsset(assetSymbol: String!): [Trade!]!
+}
+
+type Mutation {
+    executeTrade(input: TradeInput!): TradeResult!
 }
 
 type Me {
@@ -17,4 +24,34 @@ type PriceTick {
     sourceTsUtc: String!
     ingestedTsUtc: String!
     isCarry: Boolean!
+}
+
+type Trade {
+    tradeId: ID!
+    assetSymbol: String!
+    side: TradeSide!
+    quantity: Float!
+    priceUsd: Float!
+    executedAt: String!
+    createdAt: String!
+}
+
+input TradeInput {
+    assetSymbol: String!
+    side: TradeSide!
+    quantity: Float!
+}
+
+type TradeResult {
+    tradeId: ID!
+    executedAt: String!
+    priceUsd: Float!
+    assetSymbol: String!
+    side: TradeSide!
+    quantity: Float!
+}
+
+enum TradeSide {
+    BUY
+    SELL
 }
