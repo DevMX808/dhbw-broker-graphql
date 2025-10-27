@@ -6,6 +6,8 @@ type Query {
     currentPrice(assetSymbol: String!): PriceTick
     userTrades: [Trade!]!
     userTradesByAsset(assetSymbol: String!): [Trade!]!
+    walletBalance: WalletBalance!
+    walletTransactions: [WalletTransaction!]!
 }
 
 type Mutation {
@@ -54,4 +56,24 @@ type TradeResult {
 enum TradeSide {
     BUY
     SELL
+}
+
+type WalletBalance {
+    currentBalance: Float!
+    currency: String!
+}
+
+type WalletTransaction {
+    txId: ID!
+    type: WalletTransactionType!
+    amountUsd: Float!
+    note: String
+    createdAt: String!
+}
+
+enum WalletTransactionType {
+    DEPOSIT
+    WITHDRAWAL
+    ADJUSTMENT
+    INITIAL_CREDIT
 }
