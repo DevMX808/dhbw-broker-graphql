@@ -8,6 +8,8 @@ type Query {
     userTradesByAsset(assetSymbol: String!): [Trade!]!
     walletBalance: WalletBalance!
     walletTransactions: [WalletTransaction!]!
+    userAssets: [UserAsset!]!
+    userHeldTrades: [HeldTrade!]!
 }
 
 type Mutation {
@@ -76,4 +78,17 @@ enum WalletTransactionType {
     WITHDRAWAL
     ADJUSTMENT
     INITIAL_CREDIT
+}
+
+type UserAsset {
+    id: ID!
+    assetSymbol: String!
+    quantity: Float!
+}
+
+type HeldTrade {
+    id: ID!
+    assetSymbol: String!
+    quantity: Float!
+    lastUpdated: String!
 }

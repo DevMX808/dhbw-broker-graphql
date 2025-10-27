@@ -1,5 +1,6 @@
 package com.dhbw.broker.graphql.wallet;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,7 +23,8 @@ public class WalletController {
         return webClient.get()
                 .uri("/api/wallet/balance")
                 .retrieve()
-                .bodyToMono(Map.class)
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
                 .map(response -> Map.of(
                     "currentBalance", response.get("balance"),
                     "currency", "USD"
@@ -34,9 +36,8 @@ public class WalletController {
         return webClient.get()
                 .uri("/api/wallet/transactions")
                 .retrieve()
-                .bodyToFlux(Map.class)
-                .cast(Map.class)
-                .map(map -> (Map<String, Object>) map)
+                .bodyToFlux(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
                 .collectList();
     }
 }

@@ -22,6 +22,7 @@ public class TradeController {
     private final TradeRepository tradeRepository;
     private final AssetRepository assetRepository;
     private final AssetPriceRepository priceRepository;
+    private final HeldTradeRepository heldTradeRepository;
 
     @QueryMapping
     public List<TradeRepository.Trade> userTrades() {
@@ -83,8 +84,24 @@ public class TradeController {
         UUID userId = getCurrentUserId();
         OffsetDateTime executedAt = OffsetDateTime.now();
         
-        return tradeRepository.insertTrade(userId, assetSymbol, side, quantity, 
+        var result = tradeRepository.insertTrade(userId, assetSymbol, side, quantity, 
                                          currentPrice.priceUsd(), executedAt);
+
+        // Nach dem erfolgreichen Einfügen: gehaltene Menge anpassen (aggregiert in held_trades)
+        BigDecimal delta = quantity;
+        if ("SELL".equals(side)) {
+            delta = delta.negate();
+        }
+        // adjustHeldQuantity kümmert sich um Insert/Upsert und Löschen bei <= 0
+        heldTradeRepository.adjustHeldQuantity(userId, assetSymbol, delta);
+
+        return result;
+    }
+
+    @QueryMapping
+    public List<HeldTrade> userHeldTrades() {
+        UUID userId = getCurrentUserId();
+        return heldTradeRepository.findByUserId(userId);
     }
 
     private UUID getCurrentUserId() {
