@@ -31,7 +31,7 @@ public class AssetPriceRepository {
     );
   }
 
-  /** Insert eines neuen Ticks. slot wird als Minuten-Bucket berechnet (0..1439). */
+  
   public int insertTick(String assetSymbol, BigDecimal priceUsd, Instant sourceTsUtc, boolean isCarry) {
     return jdbc.update("""
       INSERT INTO broker.asset_prices_ring (asset_symbol, slot, price_usd, source_ts_utc, ingested_ts_utc, is_carry)
@@ -46,14 +46,14 @@ public class AssetPriceRepository {
       """,
       ps -> {
         ps.setString(1, assetSymbol);
-        ps.setTimestamp(2, java.sql.Timestamp.from(sourceTsUtc));          // für slot-Berechnung
+        ps.setTimestamp(2, java.sql.Timestamp.from(sourceTsUtc));        
         ps.setBigDecimal(3, priceUsd);
-        ps.setTimestamp(4, java.sql.Timestamp.from(sourceTsUtc));          // fachliche Zeit
+        ps.setTimestamp(4, java.sql.Timestamp.from(sourceTsUtc));          
         ps.setBoolean(5, isCarry);
       });
   }
 
-  /** Alles löschen, was älter als 24h ist (nur 24h Fenster behalten). */
+
   public int purgeOlderThan24h() {
     return jdbc.update("""
       DELETE FROM broker.asset_prices_ring
@@ -61,7 +61,7 @@ public class AssetPriceRepository {
     """);
   }
 
-  /** Neuester Tick (nach source_ts_utc) für ein Symbol. */
+ 
   public PriceTick findLatest(String assetSymbol) {
     return jdbc.query("""
       SELECT asset_symbol, slot, price_usd, source_ts_utc, ingested_ts_utc, is_carry
@@ -73,7 +73,7 @@ public class AssetPriceRepository {
       rs -> rs.next() ? map(rs) : null);
   }
 
-  /** Alle Ticks der letzten 24h für ein Symbol (für Charts). */
+ 
   public List<PriceTick> find24hHistory(String assetSymbol) {
     return jdbc.query("""
       SELECT asset_symbol, slot, price_usd, source_ts_utc, ingested_ts_utc, is_carry

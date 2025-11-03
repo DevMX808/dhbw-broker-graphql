@@ -21,10 +21,10 @@ public class PriceIngestionService {
   private final AssetPriceRepository repo;
   private final ObjectMapper om;
 
-  /** Einen Tick holen & speichern – nur fachliche 24h werden in der DB behalten (via purge). */
+ 
   public void recordNow(String assetSymbol) {
     try {
-      String json = external.fetchPrice(assetSymbol); // synchroner Call
+      String json = external.fetchPrice(assetSymbol); 
       if (json == null || json.isBlank()) {
         log.warn("Empty price response for {}", assetSymbol);
         return;
@@ -44,7 +44,7 @@ public class PriceIngestionService {
     }
   }
 
-  /** 24h-Retention sicherstellen. */
+  
   public void purgeOlderThan24h() {
     int n = repo.purgeOlderThan24h();
     if (n > 0) log.info("Purged {} old ticks (>24h)", n);
@@ -57,7 +57,7 @@ public class PriceIngestionService {
       if (root.has("data") && root.get("data").has("price")) return new BigDecimal(root.get("data").get("price").asText());
       if (root.has(symbol)) return new BigDecimal(root.get(symbol).asText());
       if (root.has("rates") && root.get("rates").has(symbol)) return new BigDecimal(root.get("rates").get(symbol).asText());
-      // fallback: erste Zahl im JSON
+   
       return findFirstNumber(root);
     } catch (Exception e) {
       log.error("parsePrice error for {}: {}", symbol, e.getMessage());

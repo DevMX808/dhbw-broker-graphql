@@ -30,7 +30,7 @@ public class AssetRepository {
         );
     }
 
-    /** Prüft ob ein Asset existiert und aktiv ist */
+    
     public boolean isActiveAsset(String assetSymbol) {
         return jdbc.query("""
             SELECT COUNT(*) as count
@@ -41,7 +41,7 @@ public class AssetRepository {
             rs -> rs.next() && rs.getInt("count") > 0);
     }
 
-    /** Holt ein Asset mit Details */
+    
     public Asset findBySymbol(String assetSymbol) {
         return jdbc.query("""
             SELECT asset_symbol, name, is_active, min_trade_increment

@@ -12,17 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Verwaltet die Tabelle held_trades, enthält einfache DDL zum Anlegen der Tabelle
- * und Methoden zum anpassen / abrufen der gehaltenen Mengen pro User.
- */
+
 @Repository
 @RequiredArgsConstructor
 public class HeldTradeRepository {
 
     private final JdbcTemplate jdbc;
 
-    // Erzeuge Tabelle falls nicht vorhanden (einmalig beim Aufruf)
+  
     private void ensureTable() {
         jdbc.execute("""
             CREATE TABLE IF NOT EXISTS held_trades (
@@ -45,14 +42,11 @@ public class HeldTradeRepository {
         );
     }
 
-    /**
-     * Adjustiert die gehaltene Menge eines Assets für einen User. Positive delta = Buy, negative = Sell.
-     * Legt die Zeile an, falls noch nicht vorhanden. Hält nur die Nettomenge (kann 0 werden).
-     */
+    
     public void adjustHeldQuantity(UUID userId, String assetSymbol, BigDecimal delta) {
         ensureTable();
 
-        // Verwende Postgres upsert (ON CONFLICT) um Menge zu addieren/subtrahieren
+       
         jdbc.update("""
             INSERT INTO held_trades (user_id, asset_symbol, quantity, last_updated)
             VALUES (?, ?, ?, now())
@@ -65,7 +59,7 @@ public class HeldTradeRepository {
                 ps.setBigDecimal(3, delta);
             });
 
-        // Optional: entferne Zeilen mit Menge <= 0
+     
         jdbc.update("DELETE FROM held_trades WHERE user_id = ? AND asset_symbol = ? AND quantity <= 0",
                 ps -> {
                     ps.setObject(1, userId);
@@ -73,9 +67,7 @@ public class HeldTradeRepository {
                 });
     }
 
-    /**
-     * Liefert alle gehaltenen Assets (quantity > 0) für einen User.
-     */
+   
     public List<HeldTrade> findByUserId(UUID userId) {
         ensureTable();
         return jdbc.query("SELECT id, asset_symbol, quantity, last_updated FROM held_trades WHERE user_id = ? AND quantity > 0 ORDER BY asset_symbol",
@@ -89,14 +81,11 @@ public class HeldTradeRepository {
                 });
     }
 
-    /**
-     * Rekonstruiert die held_trades-Einträge für einen User aus der trades-Tabelle (Netto BUY - SELL pro Asset).
-     * Überschreibt vorherige Einträge.
-     */
+  
     public void recomputeHeldTradesForUser(UUID userId) {
         ensureTable();
 
-        // Aggregiere netto-quantity per asset aus trades
+        
         var rows = jdbc.query("""
             SELECT asset_symbol, 
                    SUM(CASE WHEN side::text = 'BUY' THEN quantity ELSE -quantity END) AS net_qty
@@ -115,10 +104,10 @@ public class HeldTradeRepository {
                     return r;
                 });
 
-        // Entferne bestehende für user
+ 
         jdbc.update("DELETE FROM held_trades WHERE user_id = ?", ps -> ps.setObject(1, userId));
 
-        // Insertiere nur positive Netto-Mengen
+        
         for (var e : rows) {
             if (e.getValue() != null && e.getValue().compareTo(BigDecimal.ZERO) > 0) {
                 jdbc.update("INSERT INTO held_trades (user_id, asset_symbol, quantity, last_updated) VALUES (?, ?, ?, now())",

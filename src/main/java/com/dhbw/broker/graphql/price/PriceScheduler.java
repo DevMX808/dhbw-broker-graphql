@@ -16,11 +16,11 @@ public class PriceScheduler {
 
   private final PriceIngestionService ingestion;
 
-  // Passe die Liste an: deine Symbole
+ 
   private final List<String> symbols = List.of("XAU", "XAG", "BTC", "ETH", "XPD", "HG");
 
-  /** Alle 60s: Preise je Symbol holen. */
-  @Scheduled(fixedRateString = "60000") // 60s
+ 
+  @Scheduled(fixedRateString = "60000") 
   public void collect() {
     int ok=0, err=0;
     for (String s : symbols) {

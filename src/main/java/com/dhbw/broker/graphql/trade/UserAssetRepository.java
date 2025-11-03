@@ -10,10 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Einfaches Jdbc-basiertes Repository als Ersatz für das JPA-Interface.
- * Die Implementierung ist bewusst minimal, da die Hauptfunktionalität über held_trades läuft.
- */
+
 @Repository
 @RequiredArgsConstructor
 public class UserAssetRepository {

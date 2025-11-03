@@ -38,7 +38,7 @@ public class TradeController {
 
     @MutationMapping
     public TradeRepository.TradeResult executeTrade(@Argument Map<String, Object> input) {
-        // Validierung
+      
         String assetSymbol = (String) input.get("assetSymbol");
         String side = (String) input.get("side");
         Object quantityObj = input.get("quantity");
@@ -62,37 +62,36 @@ public class TradeController {
             throw new IllegalArgumentException("Quantity must be positive");
         }
 
-        // Asset-Validierung
+        
         if (!assetRepository.isActiveAsset(assetSymbol)) {
             throw new IllegalArgumentException("Invalid or inactive asset: " + assetSymbol);
         }
 
-        // Asset Details für min_trade_increment Validierung
+        
         AssetRepository.Asset asset = assetRepository.findBySymbol(assetSymbol);
         if (asset != null && asset.minTradeIncrement() != null && 
             quantity.remainder(asset.minTradeIncrement()).compareTo(BigDecimal.ZERO) != 0) {
             throw new IllegalArgumentException("Quantity must be a multiple of " + asset.minTradeIncrement());
         }
 
-        // Aktuellen Preis holen
         AssetPriceRepository.PriceTick currentPrice = priceRepository.findLatest(assetSymbol);
         if (currentPrice == null || currentPrice.priceUsd().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalStateException("Unable to get current price for asset: " + assetSymbol);
         }
 
-        // Trade ausführen
+      
         UUID userId = getCurrentUserId();
         OffsetDateTime executedAt = OffsetDateTime.now();
         
         var result = tradeRepository.insertTrade(userId, assetSymbol, side, quantity, 
                                          currentPrice.priceUsd(), executedAt);
 
-        // Nach dem erfolgreichen Einfügen: gehaltene Menge anpassen (aggregiert in held_trades)
+        
         BigDecimal delta = quantity;
         if ("SELL".equals(side)) {
             delta = delta.negate();
         }
-        // adjustHeldQuantity kümmert sich um Insert/Upsert und Löschen bei <= 0
+        
         heldTradeRepository.adjustHeldQuantity(userId, assetSymbol, delta);
 
         return result;
@@ -110,9 +109,7 @@ public class TradeController {
             throw new IllegalStateException("User not authenticated");
         }
         
-        // Hier würdest du normalerweise den User aus dem JWT Token extrahieren
-        // Für Demo-Zwecke verwende ich eine feste UUID
-        // In der Realität würdest du den userId aus dem JWT Claims extrahieren
-        return UUID.fromString("550e8400-e29b-41d4-a716-446655440000"); // Demo User ID
+      
+        return UUID.fromString("550e8400-e29b-41d4-a716-446655440000"); 
     }
 }

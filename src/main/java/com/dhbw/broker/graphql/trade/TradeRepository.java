@@ -48,7 +48,7 @@ public class TradeRepository {
         );
     }
 
-    /** Speichert einen neuen Trade */
+
     public TradeResult insertTrade(UUID userId, String assetSymbol, String side, 
                                   BigDecimal quantity, BigDecimal priceUsd, OffsetDateTime executedAt) {
         return jdbc.query("""
@@ -79,7 +79,7 @@ public class TradeRepository {
             });
     }
 
-    /** Holt alle Trades eines Users */
+  
     public List<Trade> findByUserId(UUID userId) {
         return jdbc.query("""
             SELECT t.trade_id, t.asset_symbol, t.side::text as side, t.quantity, 
@@ -98,7 +98,7 @@ public class TradeRepository {
             });
     }
 
-    /** Holt alle Trades eines Users für ein bestimmtes Asset */
+
     public List<Trade> findByUserIdAndAsset(UUID userId, String assetSymbol) {
         return jdbc.query("""
             SELECT t.trade_id, t.asset_symbol, t.side::text as side, t.quantity, 
